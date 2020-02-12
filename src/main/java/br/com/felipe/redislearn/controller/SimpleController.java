@@ -4,6 +4,8 @@ import br.com.felipe.redislearn.entity.Person;
 import br.com.felipe.redislearn.repository.PersonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +21,9 @@ import java.util.Set;
 public class SimpleController {
 
     final PersonRepository personRepository;
+    final RedisTemplate<String, Integer> template;
 
-    @GetMapping(value = "/person/")
+    @GetMapping(value = "/person")
     void addPerson() {
         Person person = new Person();
         int age = LocalTime.now().getMinute();
@@ -30,7 +33,21 @@ public class SimpleController {
         personRepository.save(person);
     }
 
-    @GetMapping(value = "/persons/")
+    @GetMapping(value = "/test")
+    void test() {
+        ListOperations<String, Integer> listOperations = template.opsForList();
+        listOperations.leftPush("test", LocalTime.now().getSecond());
+    }
+
+    @GetMapping(value = "/tests")
+    List<Integer> tests() {
+        ListOperations<String, Integer> listOperations = template.opsForList();
+        long listSize = listOperations.size("test") - 1;
+        System.out.println(listSize);
+        return listOperations.range("test", 0, listSize);
+    }
+
+    @GetMapping(value = "/persons")
     ResponseEntity<List<Person>> getPersons() {
         List<Person> persons = personRepository.findAll();
         return ResponseEntity.ok(persons);

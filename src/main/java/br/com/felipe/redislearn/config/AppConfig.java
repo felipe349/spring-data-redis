@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 @Configuration
@@ -19,9 +20,14 @@ public class AppConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
+    public RedisTemplate<String, Integer> redisTemplate() {
+        RedisTemplate<String, Integer> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
+        template.afterPropertiesSet();
+        ListOperations<String, Integer> listOperations = template.opsForList();
+        listOperations.trim("test", 0, 2);
         return template;
     }
+
+
 }
