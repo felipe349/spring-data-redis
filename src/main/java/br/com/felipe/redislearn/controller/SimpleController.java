@@ -36,6 +36,7 @@ public class SimpleController {
     @GetMapping(value = "/test")
     void test() {
         ListOperations<String, Integer> listOperations = template.opsForList();
+        listOperations.rightPop("test");
         listOperations.leftPush("test", LocalTime.now().getSecond());
     }
 
